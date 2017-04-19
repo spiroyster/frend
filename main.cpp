@@ -37,12 +37,19 @@ int main( int argc, char** argv )
 	frend::Pool<MyRay> rayPool(width * height * 8);
 
 	// the pool also holds the shaders for the specified ray type!
-	rayPool.CreateShader([](frend::ShaderFunctionInterface& sfi, const frend::Intersection<MyRay>& intersection)
+	rayPool.CreateShader([](frend::ShaderFunctionInterface& sfi, const frend::Intersection& intersection)
 	{
 		// No reflection so simply calculate the colour.
 
 		// And simply accumulate the colour.
+		MyRay* ray = static_cast<MyRay*>(intersection.fragment_);
+
+		ray->rgba[0] = 255;
+		
 	});
+
+
+
 
 
 	// Camera kernel??? which needs to know ray type (to reset) and
@@ -62,6 +69,22 @@ int main( int argc, char** argv )
 	// Create our frame with the correct samplers for composition (same ray type,
 	// and fragment sampler is compatible).
 	frend::Frame<MyFragment, MyTexel> frame(width, height);
+
+	
+	// Create our renderer.
+
+	// Set the pool, and the frame
+
+	// Render by passing the camera kernel, geometry
+	
+
+
+	// Create scene tree from the geometry.
+	// Assign the shaders
+
+	// Render the frame by passing it the Frame and Pool
+
+
 
 	
 	// Generate our geometry.

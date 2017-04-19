@@ -187,18 +187,22 @@ public:
 };
 
 // Intersection of a ray with RAY payload. Fragment maynot be present.
-template <class RAY>
 class Intersection
 {
 public:
+    Intersection()
+        :   weight_(0), payload_(0), destin_(0), origin_(0), fragment_(0)
+    {
+    }
+
     VEC4 p_;                     // position
     VEC4 d_;                     // direction
     float weight_;               // weighting of this ray.
-    RAY* payload_;
+    void* payload_;
     
-    Intersection<RAY>* destin_;                // destination (result of intersection)
-    Intersection<RAY>* origin_;                // origin (ray that spawned this ray)
-    FragmentInterface<RAY>* fragment_;
+    Intersection* destin_;                // destination (result of intersection)
+    Intersection* origin_;                // origin (ray that spawned this ray)
+    void* fragment_;
 };
 
 
@@ -228,26 +232,32 @@ public:
 // the interface available to the 
 
 
+typedef std::function<void(ShaderFunctionInterface& sfi, const Intersection& intersection)> ShaderFunction;
+    
+
 // The ray pool contains the caches for rendering a single frame.
 // A Pool is customised (templated) with the type that a ray should
 // hold.
 template <class RAY>
 class Pool
 {
-    std::vector<Intersection<RAY>> intersections;
-    std::vector<RAY> rays;
+    std::vector<Intersection> intersections_;
+    std::vector<RAY> rays_;
 
 public:
     Pool(unsigned int count)
-        :   rays(count), intersections(count)
+        :   rays_(count), intersections_(count)
     {
+        // Initialise the fragments.
+        for ( unsigned int n = 0; n < count; ++n )
+            intersections_[n].fragment_ = &rays_[n];
     }
 
     // Also manage the shaders here since these need to be of the
     // RAY type.
     
     // Add a CPU bound shader.
-    typedef std::function<void(ShaderFunctionInterface& sfi, const Intersection<RAY>& intersection)> ShaderFunction;
+    //typedef std::function<void(ShaderFunctionInterface& sfi, const Intersection& intersection)> ShaderFunction;
     
     Shader CreateShader(ShaderFunction shader)
     {
@@ -303,14 +313,36 @@ public:
 };
 
 
+
+
+
+
+
+class Scene
+{
+public:
+
+    // Add geometry with associated shader.
+
+
+
+};
+
 // This object performs the actual rendering, and uses the camera
 
 class Render
 {
 public:
+    // Render: pass frame to render, and ray pool
 
+    // Constructor with flags for runtime.
+
+    
+
+    // RenderFrame
 
 };
+
 
 
 }   // namespace frend
