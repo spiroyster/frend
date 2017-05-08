@@ -3,29 +3,84 @@
 namespace frend
 {
 
-// The render context.
+Ray::Ray() 
+    :   weight_(0), payload_(0), destin_(0), origin_(0), fragment_(0)
+{
+}
 
-// For rendering...
+FrameBase::FrameBase(unsigned int width, unsigned int height)
+    :   width_(width), height_(height)
+{
+}
 
-/*
-    first do the camera transform and preperation (kernel)
+unsigned int FrameBase::Width() const 
+{ 
+    return width_; 
+}
+unsigned int FrameBase::Height() const 
+{ 
+    return height_; 
+}
+
+unsigned int FrameBase::UVn(unsigned int u, unsigned int v) const
+{
+    return ( v * width_ ) + u;
+}
+
+DIM2i FrameBase::nUV(unsigned int n) const
+{
+    unsigned int v = n / width_;
+    return DIM2i(n - (v*width_), v);
+}
 
 
 
-    we can then perform the first round of rays intersection
-    using the romulus cache
+ContextBase::ContextBase(unsigned int count, unsigned int shaderCount, const PathKernel& pathKernel)
+:   pool_(count), pathKernel_(pathKernel)
+{
+    // Initialise our buffers and pools.
 
-    this load of intersections is retrieved, and populated back into
-    romulus. Shader invocations are retireved and populated into reamus
+}
+    
+void ContextBase::BaseMaterialShader(unsigned int n, const ShaderKernel& shaderKernel)
+{
+    // set the shader at index n to be the kernel supplied
+}
+void ContextBase::BaseMaterialShaderCL(unsigned int n, const std::string& source)
+{
+    // set the shader at index n to be the kernel compiled by the source provided.
+    // OpenCL
+}
+void ContextBase::BaseFlushShaders()
+{
+    // Flush all the shaders.
+}
 
-    shaders are executed, results retreived and put into reamus, new shaders
-    spawned (populated into romulus), and the fragments executed (at this point)
-    frame texels are retrievable.
+void ContextBase::BaseStaticGeometry(const Geometry& geometry, unsigned int shaderIndex)
+{
 
+}
 
+void ContextBase::BaseFlushGeometry()
+{
 
-*/
+}
+
+void ContextBase::BaseRender(FrameBase& frameBase, const ProjectionKernel& projectionKernel)
+{
+    // Reset the fragment
+
+    // Assert there is enough primary rays in the pool for the framebuffer.
+    
+    // Invoke the projectionKernel for each primary ray. This is invoked here
+    // CPU bound currently to set the initial positions of the primary rays.
+
 
     
 
+
+
 }
+
+
+}   // frend

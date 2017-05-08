@@ -182,10 +182,78 @@ shader is a simple non-state lambda which can spawn rays and accumulate.
 
 fragment is a state-able function which process an accumulation for a fragment.
 
+Context
+    CreateShader(std::function)
+    CreateShaderCL(std::string source)
+    CreateShaderCUDA(std::string source) etc...
+
+    // Render routine/pipe.
+    Render(frame, cameratransform, scene);
+ 
 
 
-So the context holds thememory pool (which contains intersection cache and
-ray payload cache).
 
-Framebuffer holds the out texel and fragments (needs to understand payload type)
+Rendering is done like this.
+
+ First ensure enough primary rays are set in relation to the size of the framebuffer
+
+ Set the camera initial ray positions in pool.
+
+ Reset the fragments of the frame image.
+
+ Loop for each pool chunk.
+ {
+    prepare pose for chunk number of rays.
+        Copy this to romulous.
+        Invoke romulous.
+        Read results of intersections and set next free rays with POSE
+    
+    invoke path kernel for each ray in chunk.
+        spawn rays
+        ammend current rays.
+
+    shader invocation list.
+    {
+        Create a list of the shaders to invoke with the ptrs to the correct state.
+
+        Invoke the shaders.
+
+        This invokcation will either accumulate or create more rays
+
+        Put the spawned rays into romuluous.
+    }
+        
+    finalise chunk.
+
+    Copy new spawns to next free rays in pool.
+    Replay fragment calls to frame.
+
+ }
+
+
+
+
+
+
+
+
+
+
+
+RenderPipe....
+
+One large array with everything. This is split into chunks for processing...
+
+For each chunk:
+{
+    romulous is the copy of the PXYZ, NXYZ, UV to perform processing on.
+
+    The results is a list of shaders to invoke with the primitives they have intersected...
+
+    reamus holds lots of information. And the states.
+
+    This is invoked CL styley. The results is a list of rays to spawn (this could be larger than the chunk).
+
+    These results are put into the next chunk.
+}
 

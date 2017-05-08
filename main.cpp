@@ -1,6 +1,6 @@
 #include "frend.hpp"
-#include "ppm.hpp"
-#include "geom.hpp"
+
+#include "..\EZNetBPM\EZNetBPM.hpp"
 
 class MyRay
 {
@@ -32,82 +32,42 @@ int main( int argc, char** argv )
 
 	unsigned int width = 640;
 	unsigned int height = 480;
+	unsigned int maxbounce = 4;
 
-	// Create our ray pool, which uses the same ray type as our frame sampler.
-	frend::Pool<MyRay> rayPool(width * height * 8);
+	unsigned int numberOfshaders = 12;
+	unsigned int NORMALSHADER = 0;
 
-	// the pool also holds the shaders for the specified ray type!
-	rayPool.CreateShader([](frend::ShaderFunctionInterface& sfi, const frend::Intersection& intersection)
+	// Create our context.
+	frend::Context<MyRay> context(width*height*maxbounce, numberOfshaders,
+		[](const frend::Ray& ray)
 	{
-		// No reflection so simply calculate the colour.
-
-		// And simply accumulate the colour.
-		MyRay* ray = static_cast<MyRay*>(intersection.fragment_);
-
-		ray->rgba[0] = 255;
-		
+		// Path kernel 
 	});
 
+	// Set the shader to use for the geometry when there is an intersection.
+	context.Shader(NORMALSHADER, 
+		[](const frend::Ray& ray)
+	{
+		// Shader kernel
+	});
 
-
-
-
-	// Camera kernel??? which needs to know ray type (to reset) and
-	// needs to know 
-
-
-
-
-	// Then we need a renderer which takes the frame and the pool/context
-	// and the geometry and camera information and then performs the recurssive
-	// rendering
-
-
-
-
+	// Create and add our geometry.
+	context.StaticGeometry(frend::geom::Cube(), NORMALSHADER);
 
 	// Create our frame with the correct samplers for composition (same ray type,
 	// and fragment sampler is compatible).
 	frend::Frame<MyFragment, MyTexel> frame(width, height);
 
+	// And then proceed to render the frame.
+	context.Render(frame, 
+		[](const frend::Ray& ray)
+	{
+		// Projection kernel
+	});
+
+	// Save out the image.
+	EZNetBPM::Image frameImage(width, height, 32, &frame.FrameImageTexels()[0]);
+	frameImage.Write(EZNetBPM::Type::P3, "image.ppm");
 	
-	// Create our renderer.
-
-	// Set the pool, and the frame
-
-	// Render by passing the camera kernel, geometry
-	
-
-
-	// Create scene tree from the geometry.
-	// Assign the shaders
-
-	// Render the frame by passing it the Frame and Pool
-
-
-
-	
-	// Generate our geometry.
-
-	
-
-	// Create our normal shader (this needs to know ray type) 
-
-
-
-
-	// Create our scene from the geometry and associate the correct
-	// normal shader with it.
-
-
-
-	// Clear the frame ready for rendering and setup the 
-
-	// Use the scene geometry context, render the frame.
-
-
-	// When satisfied, grab an image for the frame and save it out as ppm
-	//frend::WritePPM("output.ppm", frame.FrameImage());
-
 	return 0;
 }
